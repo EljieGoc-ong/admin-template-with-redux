@@ -1,0 +1,94 @@
+enum Role {
+  admin
+  manager
+  user
+}
+
+type User {
+  id: ID!
+  name: String!
+  email: String!
+  role: Role!
+  avatar: String
+  createdAt: String!
+}
+
+type DashboardStats {
+  totalClients: Int!
+  totalProjects: Int!
+  paidInvoices: Float!
+  openProjects: Int!
+  totalRevenue: Float!
+  ytdRevenue: Float!
+  clientsCount: Int!
+  countriesCount: Int!
+}
+
+type MonthlyRevenue {
+  month: String!
+  amount: Float!
+}
+
+type Earnings {
+  earning: Float!
+  pending: Float!
+  refund: Float!
+}
+
+type SocialMetric {
+  platform: String!
+  change: Int!
+  percentage: Int!
+}
+
+type Task {
+  id: ID!
+  title: String!
+  completed: Boolean!
+  scheduledDate: String!
+}
+
+type Dashboard {
+  stats: DashboardStats!
+  revenueData: [MonthlyRevenue!]!
+  earnings: Earnings!
+  socialMetrics: [SocialMetric!]!
+  tasks: [Task!]!
+}
+
+input CreateUserInput {
+  name: String!
+  email: String!
+  role: Role!
+  avatar: String
+}
+
+input UpdateUserInput {
+  name: String
+  email: String
+  role: Role
+  avatar: String
+}
+
+type AuthPayload {
+  user: User!
+  token: String!
+}
+
+type UsersConnection {
+  nodes: [User!]!
+  totalCount: Int!
+}
+
+type Query {
+  me: User
+  dashboard: Dashboard!
+  users(limit: Int, offset: Int): UsersConnection!
+}
+
+type Mutation {
+  login(email: String!, password: String!): AuthPayload!
+  createUser(input: CreateUserInput!): User!
+  updateUser(id: ID!, input: UpdateUserInput!): User!
+  deleteUser(id: ID!): Boolean!
+}

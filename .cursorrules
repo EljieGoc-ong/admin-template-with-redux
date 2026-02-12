@@ -1,0 +1,219 @@
+# Project AI Rules - Admin Template
+
+<!-- ## Project Context
+React + TypeScript admin template with GraphQL, RBAC, Tailwind CSS, and shadcn/ui. Optimized for performance, maintainability, and type safety. -->
+
+<!-- ## Standards Reference
+Before making changes, ALWAYS review relevant standards in `.standards/`:
+- **Code Style**: `.standards/code_style_standards.md` - TypeScript/React conventions
+- **API**: `.standards/api_standards.md` - HTTP handlers, responses, authentication
+- **Documentation**: `.standards/documentation_standards.md` - JSDoc, README guidelines
+- **Testing**: `.standards/testing_standards.md` - Frontend/unit testing guidance
+- **Git Workflow**: `.standards/git_workflow_standards.md` - Commits, branches, PRs
+- **Database**: `.standards/database_standards.md` - Schema and data modeling
+- **Models**: `.standards/model_design_standards.md` - Type definitions
+- **Feature Flags**: `.standards/feature_flags.md` - Feature flag patterns -->
+
+<!-- ## Additional Rules
+Project rules in `.cursor/rules/` directory:
+- Code-style, API, git-workflow, testing, documentation
+- RBAC & permission patterns, GraphQL
+- Styling conventions
+- Performance rules (js-*, rendering-*, rerender-*, bundle-*, async-*) -->
+
+## MCP Tools
+Use Context7 MCP (resolve-library-id, get-library-docs) for library documentation and code generation. Don't rely on training data.
+
+## Cursor Rules for Direct Communication
+
+### Communication Style
+- Be direct and precise. No unnecessary verbosity.
+- Skip lengthy recaps unless specifically requested.
+- Focus on actionable solutions and clear answers.
+- Use bullet points and concise explanations.
+- Avoid flowery language or excessive context.
+
+### Code Responses
+- Provide code solutions directly without extensive explanations.
+- Use inline comments for complex logic only.
+- Skip "here's what I did" narratives unless debugging.
+- Focus on the solution, not the process.
+
+### Token Efficiency
+- Prioritize brevity while maintaining clarity.
+- Avoid repeating information already in context.
+- Use shorthand when appropriate (e.g., "see above" instead of re-explaining).
+- Skip unnecessary pleasantries or verbose introductions.
+
+### When to Expand
+Only provide detailed explanations when:
+- Debugging complex issues
+- Explaining architectural decisions
+- Teaching new concepts
+- User explicitly requests more detail
+
+## Core Development Rules
+
+### TypeScript & React
+1. **ALWAYS** use functional components with hooks
+2. **ALWAYS** use `import type` for type-only imports
+3. **ALWAYS** keep components small, focused, and reusable
+4. **NEVER** use `any` type without strong justification
+5. **NEVER** create overly complex nested components
+6. Use explicit types or `unknown` instead of `any`
+7. Prefer composition over inheritance
+8. Keep effects minimal and well-scoped
+9. Avoid derived state; compute from props when possible
+10. Use compound components for complex UI (Tabs, Dropdown, Accordion)
+
+### Performance Optimization (Priority Order)
+1. **Eliminate Waterfalls** (CRITICAL)
+   - Use `Promise.all()` for parallel data fetching
+   - Defer `await` to when value is actually needed
+   - Use Suspense for progressive content streaming
+   
+2. **Bundle Size** (CRITICAL)
+   - Dynamic imports: `const Heavy = dynamic(() => import('./Heavy'))`
+   - Import directly, avoid barrel files: `@/components/Button` not `@/components`
+   - Lazy load analytics/monitoring after hydration
+   - Conditional loading: load features only when activated
+   
+3. **Re-render Optimization** (MEDIUM)
+   - Use `React.memo()` for expensive pure components
+   - `useMemo()` for expensive computations, `useCallback()` for stable functions
+   - Use primitive dependencies in effects, not objects/arrays
+   - Lazy state initialization: `useState(() => expensiveComputation())`
+   - Functional setState: `setCount(c => c + 1)` for stable callbacks
+   
+4. **Rendering Performance** (MEDIUM)
+   - Use ternary `{x > 0 ? <Component /> : null}` not `{x && <Component />}` to avoid rendering `0`
+   - Hoist static JSX outside components
+   - Use virtualization (@tanstack/react-virtual) for long lists
+   
+5. **JavaScript Performance** (LOW-MEDIUM)
+   - Cache array length in loops: `const len = arr.length`
+   - Use Set/Map for O(1) lookups instead of `array.includes()`
+   - Return early from functions to avoid unnecessary computation
+   - Combine multiple filter/map into single reduce
+
+### Naming Conventions
+- Components: `PascalCase` (e.g., `UserProfile.tsx`)
+- Hooks: `useSomething` (e.g., `usePermission.tsx`)
+- Component Files: `PascalCase.tsx`
+- Utility Files: `camelCase.ts`
+- Services: `camelCase.ts` in appropriate service folders
+
+### API & Data Handling
+1. **ALWAYS** use consistent response shapes:
+   - Success: `{ data: ..., message?: string }`
+   - Error: `{ error: { code, message, details? } }`
+2. **ALWAYS** document request/response payloads
+3. **ALWAYS** use appropriate HTTP status codes
+4. **NEVER** log secrets or raw tokens
+5. **NEVER** ship breaking API changes without versioning
+6. Use JSON for request/response bodies
+7. Keep URLs noun-based (e.g., `/users`, `/permissions`)
+
+### Documentation
+1. **ALWAYS** use JSDoc for exported utilities and shared modules
+2. **ALWAYS** keep README accurate with current setup steps
+3. **ALWAYS** document non-obvious UI state or data transformations
+4. **NEVER** leave complex logic undocumented
+5. Update relevant docs when changing functionality
+
+### Git & Version Control
+1. **ALWAYS** use conventional commit format: `type(scope): message`
+   - Examples: `feat(auth):`, `fix(ui):`, `docs:`, `refactor(rbac):`
+2. **ALWAYS** create feature branches: `type/description`
+   - Examples: `feature/user-profile`, `bugfix/permission-check`
+3. **ALWAYS** run tests and linting before committing
+4. **NEVER** commit directly to main/master
+5. **NEVER** commit sensitive information
+6. **NEVER** mix unrelated changes in one commit
+7. Keep PRs focused and under 400 lines when possible
+
+### Testing
+1. **ALWAYS** add tests for critical UI logic and utilities
+2. **ALWAYS** run lint and validation checks before committing
+3. Keep tests deterministic - avoid network calls in unit tests
+4. Cover critical user flows with component tests
+
+### Styling & UI
+- Use Tailwind CSS classes consistently with existing patterns
+- Follow shadcn/ui component conventions
+- Avoid inline styles unless absolutely necessary
+- Maintain responsive design patterns (mobile-first)
+- Use CSS `content-visibility: auto` for long lists
+- Group CSS changes via classes, not individual style properties
+- Implement proper focus management for modals and overlays
+- Ensure keyboard navigation (ArrowUp, ArrowDown, Enter, Escape)
+- Add ARIA attributes (role, aria-label, aria-expanded, etc.)
+
+### RBAC & Permissions
+- Always check permissions before rendering protected UI
+- Use `usePermission` hook for permission checks
+- Follow existing RBAC patterns in `contexts/RBACContext.tsx`
+- Document required permissions for new features
+
+### GraphQL Integration
+- Use Apollo Client hooks for data fetching
+- Follow patterns in `config/apollo.ts` and `services/graphql/`
+- Handle loading, error, and success states consistently
+- Use proper TypeScript types for GraphQL responses
+- Fetch data in parallel when possible using `Promise.all()`
+- Use React.cache() for per-request deduplication
+
+### Custom Hooks
+- Name with `use` prefix (e.g., `useToggle`, `useDebounce`)
+- Extract reusable logic into custom hooks
+- Use `useCallback` for stable function references
+- Return tuple `[value, setter]` or object `{ data, error, loading }`
+- Common patterns: `useToggle`, `useDebounce`, `useQuery`, `useLocalStorage`
+
+### Component Patterns
+- **Composition**: Build complex UI from small, focused components
+- **Compound Components**: Context-based components (Tabs, Accordion, Dropdown)
+- **Render Props**: Pass render function for flexible layouts
+- **Error Boundaries**: Wrap components to catch and handle errors gracefully
+- **Lazy Loading**: Use `React.lazy()` and `Suspense` for code splitting
+- **Memoization**: `React.memo()` for pure components that re-render often
+
+### State Management
+- Use `useState` for local component state
+- Use Context + `useReducer` for complex app-level state
+- Avoid prop drilling - use Context for deeply nested components
+- Keep state close to where it's used
+- Derive values from state instead of storing them
+
+### Forms & Validation
+- Controlled components: `value` + `onChange`
+- Validate on blur for better UX
+- Show errors inline near the input
+- Disable submit button during submission
+- Clear errors when user starts typing
+- Use form libraries (React Hook Form) for complex forms
+
+## Code Review Checklist
+Before marking work as complete:
+- [ ] All tests pass
+- [ ] Linting passes (ESLint)
+- [ ] TypeScript compilation succeeds with no errors
+- [ ] No `any` types introduced without justification
+- [ ] Relevant documentation updated
+- [ ] Git commit follows conventional format
+- [ ] Standards from `.standards/` directory followed
+- [ ] No sensitive data or secrets in code
+- [ ] Data fetching uses parallel patterns (Promise.all)
+- [ ] Heavy components use dynamic imports
+- [ ] No barrel file imports that bloat bundle
+- [ ] Effects have correct dependencies
+- [ ] No `{x && <Component />}` that could render `0`
+- [ ] Long lists use virtualization or pagination
+
+## When Making Changes
+1. Read relevant standards from `.standards/` directory first
+2. Follow established patterns in existing codebase
+3. Apply performance optimization in priority order (waterfalls → bundle → re-renders)
+4. Cite which standards were applied
+5. Explain any necessary deviations from standards
+6. Run verification commands after generating code
