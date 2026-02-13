@@ -1,30 +1,9 @@
 import { Suspense } from 'react'
-import { Outlet, useLocation } from 'react-router-dom'
-import { motion, AnimatePresence } from 'framer-motion'
+import { Outlet } from 'react-router-dom'
 import { Sidebar } from './Sidebar'
 import { Header } from './Header'
-import { useAppSelector } from '@/hooks/useAppSelector'
-
-const pageVariants = {
-  initial: {
-    opacity: 0,
-    y: 8,
-  },
-  animate: {
-    opacity: 1,
-    y: 0,
-  },
-  exit: {
-    opacity: 0,
-    y: -8,
-  },
-}
-
-const pageTransition = {
-  type: 'tween',
-  duration: 0.25,
-  ease: [0.25, 0.1, 0.25, 1],
-}
+import { useAppSelector, useAppDispatch } from '@/hooks/useAppSelector'
+import { toggleSidebar } from '@/store/slices/uiSlice'
 
 function PageSkeleton() {
   return (
@@ -40,35 +19,27 @@ function PageSkeleton() {
 }
 
 export default function MainLayout() {
-  const location = useLocation()
   const sidebarOpen = useAppSelector((state) => state.ui.sidebarOpen)
+  const dispatch = useAppDispatch()
 
   return (
     <div className="flex min-h-screen bg-gray-50">
       <Sidebar />
+      
+      {/* Mobile overlay */}
+      {sidebarOpen && (
+        <div
+          className="fixed inset-0 bg-black/50 z-30 lg:hidden"
+          onClick={() => dispatch(toggleSidebar())}
+        />
+      )}
+
       <div className="flex-1 flex flex-col min-w-0">
         <Header />
-        <main
-          className={`
-            flex-1 p-6 transition-all duration-300
-            ${sidebarOpen ? 'ml-64' : 'ml-20'}
-          `}
-        >
-          <AnimatePresence mode="wait">
-            <motion.div
-              key={location.pathname}
-              initial="initial"
-              animate="animate"
-              exit="exit"
-              variants={pageVariants}
-              transition={pageTransition}
-              className="h-full"
-            >
-              <Suspense fallback={<PageSkeleton />}>
-                <Outlet />
-              </Suspense>
-            </motion.div>
-          </AnimatePresence>
+        <main className="flex-1 p-4 sm:p-6 lg:ml-64">
+          <Suspense fallback={<PageSkeleton />}>
+            <Outlet />
+          </Suspense>
         </main>
       </div>
     </div>

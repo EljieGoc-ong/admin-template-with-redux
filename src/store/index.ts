@@ -33,6 +33,12 @@ export const store = configureStore({
 
 setupListeners(store.dispatch)
 
-export const persistor = persistStore(store)
+let resolveRehydrated: () => void
+/** Resolves when persist rehydration is complete. Await before first render to avoid double paint. */
+export const whenRehydrated = new Promise<void>((r) => {
+  resolveRehydrated = r
+})
+
+export const persistor = persistStore(store, undefined, () => resolveRehydrated?.())
 export type RootState = ReturnType<typeof store.getState>
 export type AppDispatch = typeof store.dispatch

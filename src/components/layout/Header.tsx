@@ -1,11 +1,11 @@
-import { Bell, Search, Settings } from 'lucide-react'
-import { useAppSelector } from '@/hooks/useAppSelector'
-import { useDispatch } from 'react-redux'
+import { Bell, Search, Settings, Menu } from 'lucide-react'
+import { useAppSelector, useAppDispatch } from '@/hooks/useAppSelector'
 import { logout } from '@/store/slices/authSlice'
+import { toggleSidebar } from '@/store/slices/uiSlice'
 import { useNavigate } from 'react-router-dom'
 
 export function Header() {
-  const dispatch = useDispatch()
+  const dispatch = useAppDispatch()
   const navigate = useNavigate()
   const user = useAppSelector((state) => state.auth.user)
 
@@ -15,9 +15,18 @@ export function Header() {
   }
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 shadow-sm">
+    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 shadow-sm">
+      {/* Mobile menu button */}
+      <button
+        onClick={() => dispatch(toggleSidebar())}
+        className="lg:hidden p-2 text-gray-600 hover:text-gray-900 hover:bg-gray-100 rounded-lg"
+        aria-label="Toggle menu"
+      >
+        <Menu className="w-5 h-5" />
+      </button>
+
       <div className="flex items-center gap-4 flex-1 max-w-xl">
-        <div className="flex items-center gap-2 flex-1 bg-gray-100 rounded-lg px-3 py-2">
+        <div className="hidden sm:flex items-center gap-2 flex-1 bg-gray-100 rounded-lg px-3 py-2">
           <Search className="w-4 h-4 text-gray-500" />
           <input
             type="search"

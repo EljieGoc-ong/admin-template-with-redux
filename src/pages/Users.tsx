@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react'
+import { useState, useMemo, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/useAppSelector'
 import {
   useGetUsersQuery,
@@ -12,6 +12,20 @@ import { UserFormDialog } from '@/components/forms/UserFormDialog'
 import { CreateUserDialog } from '@/components/forms/CreateUserDialog'
 import type { User, UpdateUserInput, CreateUserInput } from '@/types/models'
 
+function UsersSkeleton() {
+  return (
+    <div className="space-y-6">
+      <div className="h-8 w-32 bg-gray-200 rounded animate-pulse" />
+      <div className="bg-white rounded-lg shadow p-6">
+        <div className="animate-pulse space-y-4">
+          <div className="h-10 bg-gray-200 rounded" />
+          <div className="h-64 bg-gray-100 rounded" />
+        </div>
+      </div>
+    </div>
+  )
+}
+
 export default function Users() {
   const { isLoading } = useGetUsersQuery()
   const users = useAppSelector(selectAllUsers)
@@ -22,6 +36,25 @@ export default function Users() {
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc')
   const [editUser, setEditUser] = useState<User | null>(null)
   const [showCreate, setShowCreate] = useState(false)
+  const [readyToShow, setReadyToShow] = useState(false)
+
+  // Ensure skeleton paints before content: wait 2 frames + 100ms min
+  useEffect(() => {
+    let cancelled = false
+    let timerId: ReturnType<typeof setTimeout>
+    const rafId = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        timerId = setTimeout(() => {
+          if (!cancelled) setReadyToShow(true)
+        }, 100)
+      })
+    })
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(rafId)
+      clearTimeout(timerId)
+    }
+  }, [])
 
   const sortedUsers = useMemo(() => {
     const sorted = [...users]
@@ -66,6 +99,11 @@ export default function Users() {
   const handleCreate = async (data: CreateUserInput) => {
     await createUser(data)
     setShowCreate(false)
+  }
+
+  // Skeleton first, then component only when ready + have data
+  if (!readyToShow || (isLoading && users.length === 0)) {
+    return <UsersSkeleton />
   }
 
   return (

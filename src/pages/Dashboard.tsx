@@ -1,3 +1,4 @@
+import { useState, useEffect } from 'react'
 import { useAppSelector } from '@/hooks/useAppSelector'
 import { useGetDashboardQuery } from '@/store/api/dashboardApi'
 import { QuickStats } from '@/components/dashboard/QuickStats'
@@ -18,17 +19,34 @@ function DashboardSkeleton() {
 }
 
 export default function Dashboard() {
-  const { isLoading } = useGetDashboardQuery()
+  useGetDashboardQuery()
   const dashboardData = useAppSelector((state) => state.dashboard)
+  const hasData = Boolean(dashboardData.stats)
+  const [readyToShow, setReadyToShow] = useState(false)
 
-  if (isLoading && !dashboardData.stats) {
+  // Ensure skeleton paints before content: wait 2 frames + 100ms min
+  useEffect(() => {
+    let cancelled = false
+    let timerId: ReturnType<typeof setTimeout>
+    const rafId = requestAnimationFrame(() => {
+      requestAnimationFrame(() => {
+        timerId = setTimeout(() => {
+          if (!cancelled) setReadyToShow(true)
+        }, 100)
+      })
+    })
+    return () => {
+      cancelled = true
+      cancelAnimationFrame(rafId)
+      clearTimeout(timerId)
+    }
+  }, [])
+
+  if (!readyToShow || !hasData) {
     return <DashboardSkeleton />
   }
 
-  const stats = dashboardData.stats
-  if (!stats) {
-    return <DashboardSkeleton />
-  }
+  const stats = dashboardData.stats!
 
   return (
     <div className="space-y-6">

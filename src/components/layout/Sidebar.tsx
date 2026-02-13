@@ -29,7 +29,9 @@ export function Sidebar() {
     <aside
       className={cn(
         'fixed left-0 top-0 h-full bg-sidebar text-white transition-all duration-300 z-40 flex flex-col',
-        sidebarOpen ? 'w-64' : 'w-20'
+        // Mobile: hidden by default, slide in when open
+        'w-64 -translate-x-full lg:translate-x-0',
+        sidebarOpen && 'translate-x-0'
       )}
     >
       <div className="p-4 border-b border-white/10">
@@ -37,20 +39,18 @@ export function Sidebar() {
           <div className="w-10 h-10 rounded-full bg-orange-500 flex items-center justify-center font-bold shrink-0">
             C
           </div>
-          {sidebarOpen && (
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center justify-between">
-                <span className="font-semibold truncate">Crema Demo</span>
-                <ChevronDown className="w-4 h-4 shrink-0" />
-              </div>
-              <p className="text-sm text-gray-400 truncate">System Manager</p>
+          <div className="flex-1 min-w-0">
+            <div className="flex items-center justify-between">
+              <span className="font-semibold truncate">Crema Demo</span>
+              <ChevronDown className="w-4 h-4 shrink-0" />
             </div>
-          )}
+            <p className="text-sm text-gray-400 truncate">System Manager</p>
+          </div>
         </div>
       </div>
 
       <nav className="flex-1 overflow-y-auto py-4">
-        <p className={cn('px-4 text-xs text-gray-400 uppercase mb-2', !sidebarOpen && 'hidden')}>
+        <p className="px-4 text-xs text-gray-400 uppercase mb-2">
           Application
         </p>
         {navItems.map(({ to, icon: Icon, label }) => (
@@ -62,17 +62,16 @@ export function Sidebar() {
                 'flex items-center gap-3 px-4 py-2.5 mx-2 rounded-md transition-colors',
                 isActive
                   ? 'bg-primary/80 text-white'
-                  : 'text-gray-300 hover:bg-white/10 hover:text-white',
-                !sidebarOpen && 'justify-center px-2'
+                  : 'text-gray-300 hover:bg-white/10 hover:text-white'
               )
             }
           >
             <Icon className="w-5 h-5 shrink-0" />
-            {sidebarOpen && <span>{label}</span>}
+            <span>{label}</span>
           </NavLink>
         ))}
 
-        <p className={cn('px-4 text-xs text-gray-400 uppercase mb-2 mt-6', !sidebarOpen && 'hidden')}>
+        <p className="px-4 text-xs text-gray-400 uppercase mb-2 mt-6">
           Settings
         </p>
         <NavLink
@@ -80,24 +79,21 @@ export function Sidebar() {
           className={({ isActive }) =>
             cn(
               'flex items-center gap-3 px-4 py-2.5 mx-2 rounded-md transition-colors',
-              isActive ? 'bg-primary/80 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white',
-              !sidebarOpen && 'justify-center px-2'
+              isActive ? 'bg-primary/80 text-white' : 'text-gray-300 hover:bg-white/10 hover:text-white'
             )
           }
         >
           <Settings className="w-5 h-5 shrink-0" />
-          {sidebarOpen && <span>Settings</span>}
+          <span>Settings</span>
         </NavLink>
       </nav>
 
       <button
         onClick={() => dispatch(toggleSidebar())}
-        className="p-4 border-t border-white/10 text-gray-400 hover:text-white transition-colors"
+        className="hidden lg:block p-4 border-t border-white/10 text-gray-400 hover:text-white transition-colors"
         aria-label="Toggle sidebar"
       >
-        <ChevronDown
-          className={cn('w-5 h-5 mx-auto transition-transform', !sidebarOpen && 'rotate-90')}
-        />
+        <ChevronDown className="w-5 h-5 mx-auto transition-transform -rotate-90" />
       </button>
     </aside>
   )

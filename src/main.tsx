@@ -1,7 +1,7 @@
-import { StrictMode } from 'react'
 import { createRoot } from 'react-dom/client'
 import App from './App'
 import './index.css'
+import { whenRehydrated } from './store'
 
 async function enableMocking() {
   if (import.meta.env.MODE !== 'development') return
@@ -12,10 +12,11 @@ async function enableMocking() {
   })
 }
 
-enableMocking().then(() => {
-  createRoot(document.getElementById('root')!).render(
-    <StrictMode>
-      <App />
-    </StrictMode>,
-  )
+async function bootstrap() {
+  await enableMocking()
+  await whenRehydrated
+}
+
+bootstrap().then(() => {
+  createRoot(document.getElementById('root')!).render(<App />)
 })
